@@ -63,7 +63,11 @@ def additional_defines(context, binary, sdk):
 
 
 def additional_includes(context, binary, sdk):
-  return [os.path.join(builder.sourcePath, 'include')]
+  # Metamod's ISmmAPI.h includes convar.h directly; in HL2SDK CS2 it lives in public/tier1.
+  return [
+    os.path.join(builder.sourcePath, 'include'),
+    os.path.join(sdk['path'], 'public', 'tier1'),
+  ]
 
 
 class MMSPluginConfig(object):
@@ -113,7 +117,7 @@ class MMSPluginConfig(object):
 
   def configure(self):
     for cxx in self.all_targets:
-      cxx.cxxflags += ['-std=c++17', '-fno-strict-aliasing', '-Wno-invalid-offsetof', '-Wno-reorder-ctor']
+      cxx.cxxflags += ['-std=c++17', '-fno-strict-aliasing', '-Wno-invalid offsetof', '-Wno-reorder-ctor']
       cxx.cflags += ['-pipe', '-Wall', '-Wno-unused', '-Wno-sign-compare', '-fPIC']
       cxx.defines += ['LINUX', '_LINUX', 'POSIX', '_FILE_OFFSET_BITS=64']
       if builder.options.opt == '1':
@@ -149,13 +153,12 @@ class MMSPluginConfig(object):
     cxx.defines += ['META_IS_SOURCE2', 'CS2']
 
     # Metamod:Source's Source 2 plugin template compiles memoverride.cpp.
-    # The CS2 SDK branch may or may not contain the optional convar implementation
-    # source depending on the SDK revision, so add it only when it is present.
     memoverride = os.path.join(sdk['path'], 'public', 'tier0', 'memoverride.cpp')
     if not os.path.isfile(memoverride):
       raise Exception('Required HL2SDK source is missing: {}'.format(memoverride))
     binary.sources += [memoverride]
 
+    # The optional convar implementation differs between HL2SDK revisions.
     convar_source = os.path.join(sdk['path'], 'tier0_perproject', 'convar.cpp')
     if os.path.isfile(convar_source):
       binary.sources += [convar_source]
