@@ -14,19 +14,12 @@ The bundled `include/menus.h` follows the current [Pisex/cs2-menus API](https://
 
 ## Build on Linux
 
-Clone the current dependencies (or use existing checkouts):
-
 ```sh
 git clone --recursive --branch master https://github.com/alliedmodders/metamod-source.git
-# HL2SDK manifests are included in current Metamod:Source checkouts.
 git clone --recursive --branch cs2 https://github.com/alliedmodders/hl2sdk.git hl2sdk-cs2
 git clone https://github.com/alliedmodders/ambuild.git
 python3 -m pip install ./ambuild
-```
 
-Configure and build from the plugin repository root:
-
-```sh
 python3 configure.py \
   --mms_path=/path/to/metamod-source \
   --hl2sdk-manifests=/path/to/metamod-source/hl2sdk-manifests \
@@ -38,5 +31,3 @@ ambuild
 ```
 
 The build output/package is under `build/package`. The plugin VDF and Linux x86_64 binary are packaged under `addons/metamod` and `addons/menus_export/bin` respectively.
-
-If the SDK manifests are not in the Metamod tree, provide their actual path with `--hl2sdk-manifests`. `--hl2sdk-root` should contain the `hl2sdk-cs2` directory.

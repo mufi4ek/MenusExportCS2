@@ -143,14 +143,22 @@ class MMSPluginConfig(object):
     for manifest in self.sdk_manifests:
       cxx.defines += ['SE_{}={}'.format(manifest['define'], manifest['code'])]
 
-    if sdk.get('source2'):
-      cxx.defines += ['META_IS_SOURCE2', 'CS2']
-      binary.sources += [
-        os.path.join(sdk['path'], 'public', 'tier0', 'memoverride.cpp'),
-        os.path.join(sdk['path'], 'tier0_perproject', 'convar.cpp'),
-      ]
-    else:
+    if not sdk.get('source2'):
       raise Exception('The selected SDK is not Source 2; configure with --sdks cs2.')
+
+    cxx.defines += ['META_IS_SOURCE2', 'CS2']
+
+    # Metamod:Source's Source 2 plugin template compiles memoverride.cpp.
+    # The CS2 SDK branch may or may not contain the optional convar implementation
+    # source depending on the SDK revision, so add it only when it is present.
+    memoverride = os.path.join(sdk['path'], 'public', 'tier0', 'memoverride.cpp')
+    if not os.path.isfile(memoverride):
+      raise Exception('Required HL2SDK source is missing: {}'.format(memoverride))
+    binary.sources += [memoverride]
+
+    convar_source = os.path.join(sdk['path'], 'tier0_perproject', 'convar.cpp')
+    if os.path.isfile(convar_source):
+      binary.sources += [convar_source]
 
     SdkHelpers.configureCxx(context, binary, sdk)
     cxx.linkflags += additional_libs(context, binary, sdk)
