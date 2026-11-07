@@ -145,22 +145,22 @@ class MMSPluginConfig(object):
 
     if sdk.get('source2'):
       cxx.defines += ['META_IS_SOURCE2', 'CS2']
-      sdk_sources = [
-        ('public', 'tier0', 'memoverride.cpp'),
-        ('public', 'networkvar.cpp'),
-        ('tier1', 'generichash.cpp'),
-        ('entity2', 'entitysystem.cpp'),
-        ('entity2', 'entityhandle.cpp'),
-        ('entity2', 'concreteentitylist.cpp'),
-        ('entity2', 'entityidentity.cpp'),
-        ('entity2', 'entitykeyvalues.cpp'),
-        ('entity2', 'entitypulse.cpp'),
-        ('entity2', 'entitypulsecallcontext.cpp'),
-        ('tier0_perproject', 'convar.cpp'),
-        ('tier0_perproject', 'convarref.cpp'),
-        ('tier0_perproject', 'concommandbase.cpp'),
-        ('kv3lib', 'keyvalues3.cpp'),
-      ]
+             sdk_sources = [
+           ('public', 'tier0', 'memoverride.cpp'),
+           ('public', 'networkvar.cpp'),
+           ('tier1', 'generichash.cpp'),
+           ('entity2', 'entitysystem.cpp'),
+           ('entity2', 'entityhandle.cpp'),
+           ('entity2', 'concreteentitylist.cpp'),
+           ('entity2', 'entityidentity.cpp'),
+           ('entity2', 'entitykeyvalues.cpp'),
+           ('entity2', 'entitypulse.cpp'),
+           ('entity2', 'entitypulsecallcontext.cpp'),
+           ('tier0_perproject', 'convar.cpp'),
+           ('tier0_perproject', 'convarref.cpp'),
+           ('tier0_perproject', 'concommandbase.cpp'),
+           ('kv3lib', 'keyvalues3.cpp'),
+       ]
       binary.sources += [os.path.join(sdk['path'], *parts) for parts in sdk_sources]
     else:
       raise Exception('The selected SDK is not Source 2; configure with --sdks cs2.')
