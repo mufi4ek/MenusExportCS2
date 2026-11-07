@@ -63,7 +63,7 @@ def additional_defines(context, binary, sdk):
 
 
 def additional_includes(context, binary, sdk):
-  # Metamod's ISmmAPI.h includes convar.h directly; in HL2SDK CS2 it lives in public/tier1.
+  # Metamod headers include convar.h directly; in HL2SDK CS2 it lives in public/tier1.
   return [
     os.path.join(builder.sourcePath, 'include'),
     os.path.join(sdk['path'], 'public', 'tier1'),
@@ -142,7 +142,12 @@ class MMSPluginConfig(object):
     binary = self.Library(compiler, name)
     cxx = binary.compiler
     mms_core_path = os.path.join(self.mms_root, 'core')
-    cxx.cxxincludes += [context.currentSourcePath, mms_core_path, os.path.join(mms_core_path, 'sourcehook')]
+    cxx.cxxincludes += [
+      context.currentSourcePath,
+      mms_core_path,
+      os.path.join(mms_core_path, 'sourcehook'),
+      os.path.join(self.mms_root, 'third_party', 'khook', 'include'),
+    ]
 
     for manifest in self.sdk_manifests:
       cxx.defines += ['SE_{}={}'.format(manifest['define'], manifest['code'])]
