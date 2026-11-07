@@ -1,0 +1,64 @@
+name: Build Linux CS2 plugin
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/pisex/ubuntu20:latest
+
+    env:
+      HL2SDK_ROOT: ${{ github.workspace }}/external
+      MMS_PATH: ${{ github.workspace }}/external/metamod-source
+      HL2SDK_MANIFESTS: ${{ github.workspace }}/external/metamod-source/hl2sdk-manifests
+
+    steps:
+      - name: Check out plugin source
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -qy
+          apt-get install -y git clang-10 clang++-10 binutils lld python3 python3-pip zip
+          python3 -m pip install --upgrade pip importlib-metadata
+          python3 -m pip install setuptools==45.2.0
+          git clone https://github.com/alliedmodders/ambuild.git "$GITHUB_WORKSPACE/ambuild"
+          python3 -m pip install "$GITHUB_WORKSPACE/ambuild"
+
+      - name: Fetch Metamod:Source and CS2 SDK
+        run: |
+          mkdir -p "$HL2SDK_ROOT"
+          git clone --recursive --branch master --single-branch \
+            https://github.com/alliedmodders/metamod-source.git "$MMS_PATH"
+          git clone --recursive --branch cs2 --single-branch \
+            https://github.com/alliedmodders/hl2sdk.git "$HL2SDK_ROOT/hl2sdk-cs2"
+
+      - name: Configure and build
+        run: |
+          mkdir -p build
+          cd build
+          python3 ../configure.py \
+            --mms_path="$MMS_PATH" \
+            --hl2sdk-manifests="$HL2SDK_MANIFESTS" \
+            --hl2sdk-root="$HL2SDK_ROOT" \
+            --sdks=cs2 \
+            --targets=x86_64 \
+            --enable-optimize
+          ambuild
+
+      - name: Package plugin
+        run: |
+          cd build/package/addons
+          zip -r "$GITHUB_WORKSPACE/MenusExportCS2-linux-x86_64.zip" .
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MenusExportCS2-linux-x86_64
+          path: MenusExportCS2-linux-x86_64.zip
+          if-no-files-found: error
