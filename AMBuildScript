@@ -117,9 +117,12 @@ class MMSPluginConfig(object):
 
   def configure(self):
     for cxx in self.all_targets:
-      cxx.cxxflags += ['-std=c++17', '-fno-strict-aliasing', '-Wno-invalid offsetof', '-Wno-reorder-ctor']
+      cxx.cxxflags += ['-std=c++17', '-fno-strict-aliasing']
       cxx.cflags += ['-pipe', '-Wall', '-Wno-unused', '-Wno-sign-compare', '-fPIC']
       cxx.defines += ['LINUX', '_LINUX', 'POSIX', '_FILE_OFFSET_BITS=64']
+      if cxx.behavior == 'gcc':
+        # Source SDK headers use Microsoft's stricmp name on Linux.
+        cxx.defines += ['stricmp=strcasecmp', '_stricmp=strcasecmp']
       if builder.options.opt == '1':
         cxx.defines += ['NDEBUG']
         cxx.cflags += ['-O3']
